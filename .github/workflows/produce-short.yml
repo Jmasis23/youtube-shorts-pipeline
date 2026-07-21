@@ -1,0 +1,61 @@
+name: Produce YouTube Short
+
+on:
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: "Topic for the video"
+        required: true
+        type: string
+      niche:
+        description: "Niche profile"
+        required: false
+        type: string
+        default: general
+      dry_run:
+        description: "Draft only, skip produce and upload"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  produce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Restore YouTube OAuth token
+        run: |
+          mkdir -p ~/.verticals
+          printf '%s' "$YT_TOKEN" > ~/.verticals/youtube_token.json
+        env:
+          YT_TOKEN: ${{ secrets.YOUTUBE_TOKEN_JSON }}
+
+      - name: Run pipeline
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          ARGS=(--topic "${{ inputs.topic }}" --niche "${{ inputs.niche }}" --provider claude --voice edge)
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            ARGS+=(--dry-run)
+          fi
+          python -m verticals run "${ARGS[@]}"
+
+      - name: Upload output as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: short-output
+          path: |
+            ~/.verticals/media/
+            ~/.verticals/drafts/
+          retention-days: 7
