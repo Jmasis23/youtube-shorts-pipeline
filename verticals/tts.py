@@ -34,7 +34,10 @@ from .retry import with_retry
 # Gemini TTS (Google GenAI) — natural narration, style-steerable
 # ─────────────────────────────────────────────────────
 
-GEMINI_TTS_MODEL = "gemini-2.5-flash-preview-tts"
+# Preview TTS models get replaced roughly every few months; check
+# https://ai.google.dev/gemini-api/docs/models for the current one if this
+# starts 404ing.
+GEMINI_TTS_MODEL = "gemini-3.1-flash-tts-preview"
 
 # The prebuilt voices exposed by the Gemini speech models. Names are stable
 # across the flash and pro TTS models.
@@ -92,6 +95,12 @@ def _call_gemini_tts(
             )
         elif r.status_code == 429:
             hint = " — Gemini TTS rate limit; retrying with backoff"
+        elif r.status_code == 404:
+            hint = (
+                f" — {model} may have been retired; check current model IDs "
+                "at https://ai.google.dev/gemini-api/docs/models and update "
+                "GEMINI_TTS_MODEL in verticals/tts.py"
+            )
         raise RuntimeError(f"Gemini TTS {r.status_code}: {detail}{hint}")
 
     data = r.json()

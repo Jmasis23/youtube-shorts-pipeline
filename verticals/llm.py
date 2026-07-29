@@ -19,6 +19,12 @@ from .config import (
 from .log import log
 from .retry import with_retry
 
+# Google retires Gemini model IDs on a roughly six-month cycle (2.0 Flash was
+# cut off June 2026); centralizing the ID here means a retirement is a
+# one-line fix instead of a grep across llm.py, broll.py, thumbnail.py, and
+# tts.py. gemini-3.6-flash is the current GA flash-tier model for text.
+GEMINI_TEXT_MODEL = "gemini-3.6-flash"
+
 
 def get_provider(name: str | None = None) -> str:
     """Resolve which LLM provider to use.
@@ -161,7 +167,7 @@ def _call_gemini(prompt: str, max_tokens: int) -> str:
 
     url = (
         "https://generativelanguage.googleapis.com/v1beta"
-        "/models/gemini-2.0-flash:generateContent"
+        f"/models/{GEMINI_TEXT_MODEL}:generateContent"
     )
     body = {
         "contents": [{"parts": [{"text": prompt}]}],
@@ -181,6 +187,17 @@ def _call_gemini(prompt: str, max_tokens: int) -> str:
                 " — check that GEMINI_API_KEY is set in this environment and is "
                 "an AI Studio key (https://aistudio.google.com/apikey), not a "
                 "Vertex AI / service-account credential"
+            )
+        elif r.status_code == 404:
+            # Google retires Gemini model IDs on a rolling basis (2.0 Flash
+            # was cut off mid-2026); a 404 here almost always means
+            # GEMINI_TEXT_MODEL needs bumping to whatever is current at
+            # https://ai.google.dev/gemini-api/docs/models, not a bug in the
+            # request itself.
+            hint = (
+                f" — {GEMINI_TEXT_MODEL} may have been retired; check current "
+                "model IDs at https://ai.google.dev/gemini-api/docs/models "
+                "and update GEMINI_TEXT_MODEL in verticals/llm.py"
             )
         raise RuntimeError(f"Gemini API {r.status_code}: {r.text[:300]}{hint}")
 

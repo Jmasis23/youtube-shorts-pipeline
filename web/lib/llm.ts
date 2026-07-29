@@ -3,9 +3,12 @@ import type { Provider } from "./types";
 // Port of verticals/llm.py's router, trimmed to the three providers that make
 // sense from a serverless function (no local Ollama, no CLI fallback).
 
+// Google retires Gemini model IDs on a rolling basis (2.0 Flash was cut off
+// mid-2026); check https://ai.google.dev/gemini-api/docs/models if this
+// starts 404ing and bump it here.
 const MODELS: Record<Provider, string> = {
   anthropic: "claude-sonnet-4-6",
-  gemini: "gemini-2.0-flash",
+  gemini: "gemini-3.6-flash",
   openai: "gpt-4o-mini",
 };
 
@@ -98,7 +101,18 @@ async function callGemini(prompt: string, apiKey: string, maxTokens: number) {
     },
   );
 
-  if (!r.ok) throw await httpError(r, "Gemini");
+  if (!r.ok) {
+    if (r.status === 404) {
+      const detail = await r.text();
+      throw new LlmError(
+        `Gemini 404: ${detail.slice(0, 200)} — ${MODELS.gemini} may have been ` +
+          "retired; check current model IDs at " +
+          "https://ai.google.dev/gemini-api/docs/models and update MODELS.gemini " +
+          "in web/lib/llm.ts",
+      );
+    }
+    throw await httpError(r, "Gemini");
+  }
   const data = await r.json();
   const parts = data?.candidates?.[0]?.content?.parts ?? [];
   const text = parts.map((p: { text?: string }) => p.text ?? "").join(" ").trim();

@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.3.1] - 2026-07-29
+
+Fixes a hard outage: Google retired `gemini-2.0-flash` on June 1, 2026, and every Gemini call in the repo (script generation, b-roll, thumbnails, TTS, and the web planner) had been hardcoding it or an equally-dead sibling model.
+
+### Fixed
+- Bumped every Gemini model ID to the current generation: `gemini-3.6-flash` for text (`verticals/llm.py`, `web/lib/llm.ts`), `gemini-3.1-flash-image` for b-roll and thumbnails (was `gemini-2.0-flash-exp-image-generation`, an experimental ID retired alongside 2.0 Flash), and `gemini-3.1-flash-tts-preview` for narration (was `gemini-2.5-flash-preview-tts`, itself on a separate retirement schedule). `generateContent` request/response shapes are unchanged; Google confirms the endpoint still serves Gemini 3.x models, so this was a model-ID fix, not an API migration.
+- Model IDs are now centralized: `GEMINI_TEXT_MODEL` in `verticals/llm.py` and `GEMINI_IMAGE_MODEL` in `verticals/config.py` (shared by `broll.py` and `thumbnail.py`) so the next retirement is a one-line change instead of a repo-wide grep.
+- A 404 from any Gemini call now names the dead model ID and points at `https://ai.google.dev/gemini-api/docs/models`, in both the Python CLI and the web planner, instead of surfacing Google's generic "no longer available" message with no next step.
+
 ## [3.3.0] - 2026-07-29
 
 Adds `web/`, a Next.js app for the planning half of the long-form engine, deployable to Vercel.

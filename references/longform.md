@@ -147,7 +147,7 @@ chapters come next, the body follows.
 
 ## Voice
 
-Narration defaults to **Gemini TTS** (Google GenAI) — `gemini-2.5-flash-preview-tts`,
+Narration defaults to **Gemini TTS** (Google GenAI) — `gemini-3.1-flash-tts-preview`,
 using the same `GEMINI_API_KEY` already required for scene images. Two reasons
 it is the long-form default rather than Edge:
 
