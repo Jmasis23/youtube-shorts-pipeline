@@ -23,6 +23,15 @@ VIDEO_WIDTH = 1080
 VIDEO_HEIGHT = 1920
 
 # ─────────────────────────────────────────────────────
+# Gemini image model — shared by broll.py and thumbnail.py so a retirement
+# (Google cycles these every few months; the "-exp" and "-preview" variants
+# go first) is a one-line fix instead of two. gemini-3.1-flash-image is the
+# current GA/stable image model, distinct from the "-preview" variant which
+# is on its own separate retirement schedule.
+# ─────────────────────────────────────────────────────
+GEMINI_IMAGE_MODEL = "gemini-3.1-flash-image"
+
+# ─────────────────────────────────────────────────────
 # Voice config — override via env or config.json
 # ─────────────────────────────────────────────────────
 VOICE_ID_EN = os.environ.get("VOICE_ID_EN", "JBFqnCBsd6RMkjVDRZzb")  # George

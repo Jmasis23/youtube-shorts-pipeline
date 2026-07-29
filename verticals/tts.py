@@ -1,6 +1,10 @@
-"""Multi-provider TTS — Edge TTS (free default), ElevenLabs (premium), MiniMax, 60db (Indic + low cost), macOS say (fallback).
+"""Multi-provider TTS — Gemini (Google GenAI), Edge TTS, ElevenLabs, MiniMax, 60db, macOS say.
 
-Edge TTS is the recommended default: free, cross-platform, 300+ voices, no API key.
+Gemini TTS is the long-form default: natural narration, 30 voices, and it takes
+a plain-language style instruction ("read this as a measured documentary
+narrator"), which is what lets a format profile shape delivery and not just
+word choice. Uses the same GEMINI_API_KEY as b-roll and thumbnails.
+Edge TTS is the Shorts default: free, cross-platform, 300+ voices, no API key.
 ElevenLabs is premium: most natural, requires API key.
 MiniMax is an alternative paid provider with streaming TTS.
 60db is an alternative paid provider with native Indic-language voices and a lower per-character cost.
@@ -18,11 +22,147 @@ from .config import (
     VOICE_ID_HI,
     get_60db_key,
     get_elevenlabs_key,
+    get_gemini_key,
     get_minimax_key,
     run_cmd,
 )
 from .log import log
 from .retry import with_retry
+
+
+# ─────────────────────────────────────────────────────
+# Gemini TTS (Google GenAI) — natural narration, style-steerable
+# ─────────────────────────────────────────────────────
+
+# Preview TTS models get replaced roughly every few months; check
+# https://ai.google.dev/gemini-api/docs/models for the current one if this
+# starts 404ing.
+GEMINI_TTS_MODEL = "gemini-3.1-flash-tts-preview"
+
+# The prebuilt voices exposed by the Gemini speech models. Names are stable
+# across the flash and pro TTS models.
+GEMINI_TTS_VOICES = [
+    "Zephyr", "Puck", "Charon", "Kore", "Fenrir", "Leda", "Orus", "Aoede",
+    "Callirrhoe", "Autonoe", "Enceladus", "Iapetus", "Umbriel", "Algieba",
+    "Despina", "Erinome", "Algenib", "Rasalgethi", "Laomedeia", "Achernar",
+    "Alnilam", "Schedar", "Gacrux", "Pulcherrima", "Achird", "Zubenelgenubi",
+    "Vindemiatrix", "Sadachbia", "Sadaltager", "Sulafat",
+]
+
+# Charon reads as informative and unhurried — the safest default for narration.
+GEMINI_VOICE_DEFAULT = "Charon"
+
+# The model returns raw little-endian 16-bit PCM, not a container format.
+GEMINI_TTS_SAMPLE_RATE = 24000
+
+
+@with_retry(max_retries=3, base_delay=2.0)
+def _call_gemini_tts(
+    text: str,
+    voice_name: str,
+    api_key: str,
+    model: str = GEMINI_TTS_MODEL,
+) -> tuple[bytes, int]:
+    """Call the Gemini speech model and return (raw PCM bytes, sample rate)."""
+    url = (
+        "https://generativelanguage.googleapis.com/v1beta"
+        f"/models/{model}:generateContent"
+    )
+    body = {
+        "contents": [{"parts": [{"text": text}]}],
+        "generationConfig": {
+            "responseModalities": ["AUDIO"],
+            "speechConfig": {
+                "voiceConfig": {"prebuiltVoiceConfig": {"voiceName": voice_name}}
+            },
+        },
+    }
+    r = requests.post(
+        url, json=body, timeout=180,
+        headers={"Content-Type": "application/json", "x-goog-api-key": api_key},
+    )
+    if r.status_code != 200:
+        try:
+            detail = r.json().get("error", {}).get("message", r.text[:200])
+        except Exception:
+            detail = r.text[:200]
+        hint = ""
+        if r.status_code == 403:
+            hint = (
+                " — check that GEMINI_API_KEY is an AI Studio key "
+                "(https://aistudio.google.com/apikey), not a Vertex AI / "
+                "service-account credential"
+            )
+        elif r.status_code == 429:
+            hint = " — Gemini TTS rate limit; retrying with backoff"
+        elif r.status_code == 404:
+            hint = (
+                f" — {model} may have been retired; check current model IDs "
+                "at https://ai.google.dev/gemini-api/docs/models and update "
+                "GEMINI_TTS_MODEL in verticals/tts.py"
+            )
+        raise RuntimeError(f"Gemini TTS {r.status_code}: {detail}{hint}")
+
+    data = r.json()
+    for part in data.get("candidates", [{}])[0].get("content", {}).get("parts", []):
+        inline = part.get("inlineData")
+        if inline and inline.get("data"):
+            return base64.b64decode(inline["data"]), _pcm_rate(inline.get("mimeType", ""))
+
+    raise RuntimeError("No audio in Gemini TTS response")
+
+
+def _pcm_rate(mime_type: str) -> int:
+    """Pull the sample rate out of a mime type like `audio/L16;codec=pcm;rate=24000`."""
+    for param in mime_type.split(";"):
+        key, _, value = param.strip().partition("=")
+        if key.strip().lower() == "rate":
+            try:
+                return int(value)
+            except ValueError:
+                break
+    return GEMINI_TTS_SAMPLE_RATE
+
+
+def _generate_gemini_tts(
+    script: str,
+    out_dir: Path,
+    lang: str,
+    voice_id: str = "",
+    style_prompt: str = "",
+    model: str = GEMINI_TTS_MODEL,
+) -> Path:
+    """Generate a voiceover with Gemini TTS.
+
+    `style_prompt` is a plain-language delivery instruction prepended to the
+    text. The model follows it and speaks only what comes after the colon, so
+    a format profile can ask for "an unhurried documentary narrator" without
+    that phrase ending up in the audio.
+    """
+    api_key = get_gemini_key()
+    if not api_key:
+        raise RuntimeError("GEMINI_API_KEY not set")
+
+    voice = voice_id or GEMINI_VOICE_DEFAULT
+    prompt = f"{style_prompt.rstrip(':')}: {script}" if style_prompt else script
+
+    out_path = out_dir / f"voiceover_{lang}.mp3"
+    pcm_path = out_dir / f"voiceover_{lang}.pcm"
+
+    log(f"Generating {lang} voiceover via Gemini TTS (voice: {voice})...")
+    pcm, rate = _call_gemini_tts(prompt, voice, api_key, model)
+    pcm_path.write_bytes(pcm)
+
+    # The API returns headerless PCM; everything downstream expects MP3.
+    run_cmd([
+        "ffmpeg", "-f", "s16le", "-ar", str(rate), "-ac", "1", "-i", str(pcm_path),
+        "-c:a", "libmp3lame", "-q:a", "2",
+        str(out_path), "-y", "-loglevel", "quiet",
+    ])
+    pcm_path.unlink(missing_ok=True)
+
+    log(f"Gemini TTS voiceover saved: {out_path.name}")
+    return out_path
 
 
 # ─────────────────────────────────────────────────────
@@ -314,8 +454,13 @@ def _generate_say(script: str, out_dir: Path) -> Path:
 def get_tts_provider(name: str | None = None) -> str:
     """Resolve which TTS provider to use.
 
-    Priority: explicit name > TTS_PROVIDER env > auto-detect.
+    Priority: explicit name > TTS_PROVIDER env > config.json > auto-detect.
     Auto-detect tries: edge_tts > minimax > elevenlabs > 60db > say.
+
+    Gemini is deliberately not in the auto-detect chain: a GEMINI_API_KEY is
+    already required for b-roll, so auto-selecting it would silently move every
+    existing Shorts user onto paid narration. Ask for it — `--voice gemini`, or
+    TTS_PROVIDER=gemini. The long-form engine requests it explicitly.
     """
     if name and name != "auto":
         return name.lower()
@@ -380,6 +525,19 @@ def generate_voiceover(
     """
     provider = get_tts_provider(provider)
     voice_config = voice_config or {}
+
+    if provider in ("gemini", "google", "genai"):
+        try:
+            return _generate_gemini_tts(
+                script, out_dir, lang,
+                voice_id=voice_config.get("voice_id", ""),
+                style_prompt=voice_config.get("style_prompt", ""),
+                model=voice_config.get("model", GEMINI_TTS_MODEL),
+            )
+        except Exception as e:
+            log(f"Gemini TTS failed: {e}")
+            log("Falling back to Edge TTS...")
+            provider = "edge"
 
     if provider == "edge":
         voice_override = voice_config.get("voice_id", "")

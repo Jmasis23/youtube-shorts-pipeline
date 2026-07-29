@@ -6,7 +6,7 @@ from pathlib import Path
 import requests
 from PIL import Image
 
-from .config import VIDEO_WIDTH, VIDEO_HEIGHT, get_gemini_key, run_cmd
+from .config import GEMINI_IMAGE_MODEL, VIDEO_WIDTH, VIDEO_HEIGHT, get_gemini_key, run_cmd
 from .log import log
 from .retry import with_retry
 
@@ -16,7 +16,7 @@ def _generate_image_gemini(prompt: str, output_path: Path, api_key: str):
     """Generate image via Gemini native image generation (free tier compatible)."""
     url = (
         "https://generativelanguage.googleapis.com/v1beta"
-        "/models/gemini-2.0-flash-exp-image-generation:generateContent"
+        f"/models/{GEMINI_IMAGE_MODEL}:generateContent"
     )
     body = {
         "contents": [{"parts": [{"text": f"Generate an image: {prompt}"}]}],
@@ -37,6 +37,12 @@ def _generate_image_gemini(prompt: str, output_path: Path, api_key: str):
                 " — check that GEMINI_API_KEY is set in this environment and is "
                 "an AI Studio key (https://aistudio.google.com/apikey), not a "
                 "Vertex AI / service-account credential"
+            )
+        elif r.status_code == 404:
+            hint = (
+                f" — {GEMINI_IMAGE_MODEL} may have been retired; check current "
+                "model IDs at https://ai.google.dev/gemini-api/docs/models "
+                "and update GEMINI_IMAGE_MODEL in verticals/config.py"
             )
         raise RuntimeError(f"Gemini API {r.status_code}: {detail}{hint}")
     data = r.json()

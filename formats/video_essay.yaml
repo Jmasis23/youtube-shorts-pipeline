@@ -1,0 +1,122 @@
+name: video_essay
+display_name: Video Essay
+description: >
+  An argument, not a summary. Stakes a claim in the first minute and spends the
+  rest earning it, including the part where the strongest objection gets taken
+  seriously. Attracts comments and long watch times when the thesis is real.
+
+target_minutes: 15
+chapters: 5
+
+script:
+  tone: thoughtful, precise, willing to be wrong in public
+  narration_style: >
+    First person singular, used sparingly and only for the argument itself.
+    Long-form sentences with real clauses. Name the thing being criticised
+    exactly. No hedging stacks — say the claim, then defend it.
+  perspective: someone who has thought about this longer than the viewer has
+
+  arc:
+    intro: >
+      State the thesis in one sentence, early and without hedging. Say what
+      would have to be true for it to be wrong. That is the contract.
+    early: >
+      Steelman the position being argued against. Make it as strong as its best
+      advocate would, and say plainly what it gets right.
+    middle: >
+      The evidence. Build the case in escalating order — weakest supporting
+      point first, strongest last, so the argument gains rather than leaks.
+    late: >
+      The objection you cannot fully answer. Concede it honestly, then show why
+      the thesis survives it anyway. This is what separates an essay from a rant.
+    outro: >
+      Restate the thesis in its now-earned form — sharper and more qualified
+      than the opening version. Then the call to action.
+
+  retention:
+    open_loop: >
+      Name the strongest counterargument in the intro and promise to address it
+      directly. Viewers who disagree stay to see whether you actually do.
+    rehook_every_seconds: 95
+    rules:
+      - Never argue against a position nobody holds.
+      - Every chapter must move the argument, not restate it in new words.
+      - Cite the specific example rather than gesturing at a category.
+      - Concede at least one real point to the other side, unironically.
+      - The conclusion must be narrower than the opening claim, not broader.
+
+  hooks:
+    - template: "The standard defence of {subject} rests on one assumption. I think that assumption is false, and here is what follows if it is."
+      when: the thesis attacks a premise
+    - template: "I've changed my mind about {subject}. What follows is the argument that changed it, including the part I still can't answer."
+      when: the essay is a genuine reversal
+    - template: "{claim}. That's the whole thesis. The next {duration} is me trying to earn it."
+      when: the claim is strong enough to stand unadorned
+
+  cta: >
+    Invite the specific disagreement the essay left open, naming the objection
+    you most expect. Genuine, not an engagement prompt.
+
+  forbidden_phrases:
+    - "let's unpack that"
+    - "the discourse"
+    - "hot take"
+    - "at the end of the day"
+    - "in today's video"
+    - "and that's a problem"
+    - "let that sink in"
+
+visuals:
+  style: >
+    contemplative editorial photography, natural light, unhurried framing
+  mood: reflective, restrained, textural
+  scene_seconds: 10
+  prompt_suffix: >
+    editorial photography, 16:9, natural light, film grain, muted palette,
+    negative space, no text, no watermarks, no logos
+  motion: [zoom_in, pan_left, zoom_out, pan_right]
+  subjects:
+    prefer:
+      - objects and spaces that embody the idea rather than illustrate it
+      - urban and domestic details shot with negative space
+      - textures, materials, and surfaces in close-up
+      - horizons, thresholds, and empty transitional spaces
+    avoid:
+      - faces
+      - literal one-to-one illustrations of the narration
+      - legible on-screen text
+      - anything that reads as stock footage
+
+voice:
+  style_prompt: >
+    Read this as a thoughtful essayist — reflective and unhurried, with natural pauses where the argument turns
+  suggested_voices:
+    gemini:
+      en: "Algieba"
+
+audio:
+  music_mood: ambient drone, warm, textural, almost no melodic movement
+  music_volume: 0.13
+  duck_ratio: 10
+  chapter_gap_seconds: 1.2
+
+captions:
+  burn_in: false
+  font_family: Arial
+  font_size: 42
+  words_per_line: 9
+
+thumbnail:
+  style: >
+    Quiet and typographic. The thesis compressed to four or five words over a
+    single restrained image.
+  guidelines:
+    - The text carries the thumbnail, the image supports it
+    - One typeface, one weight, generous margins
+    - No arrows, no circles, no reaction faces
+
+metadata:
+  category_id: "27"
+  title_style: >
+    State the claim. A title that argues something outperforms a title that
+    describes something. No questions unless the essay genuinely answers one.

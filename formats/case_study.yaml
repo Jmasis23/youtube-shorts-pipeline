@@ -1,0 +1,124 @@
+name: case_study
+display_name: Business Case Study
+description: >
+  How a company, product, or person actually made or lost money. Numbers-led,
+  mechanism-first, no hagiography. The strongest faceless format for high-CPM
+  finance and business audiences.
+
+target_minutes: 13
+chapters: 6
+
+script:
+  tone: analytical, sceptical, plainly numerate
+  narration_style: >
+    Second person for the lessons, third person for the events. Always give the
+    number before the adjective — "revenue fell 34%", not "revenue collapsed".
+    Name the mechanism, not the vibe. Assume the viewer can do arithmetic.
+  perspective: an analyst walking through the numbers, not a fan
+
+  arc:
+    intro: >
+      Open with the single most striking number in the whole story and what it
+      means. State the question the case study answers: how, specifically.
+    early: >
+      The starting conditions. What the market looked like, what the constraint
+      was, and what everyone else was doing at the time.
+    middle: >
+      The decision and the mechanism. This is the heart — explain exactly how
+      the money moved, with unit economics where the research supports them.
+    late: >
+      What broke or what compounded, and the counterfactual. What would have
+      happened under the obvious alternative decision.
+    outro: >
+      Three transferable lessons, each stated as a rule the viewer could apply
+      to a decision of their own. Then the call to action.
+
+  retention:
+    open_loop: >
+      Put a number in the intro that appears impossible given the starting
+      conditions, and promise the mechanism that explains it. Deliver it in the
+      middle chapter.
+    rehook_every_seconds: 80
+    rules:
+      - Every chapter needs at least two specific figures from the research.
+      - State the time period any figure belongs to — undated numbers are noise.
+      - Name the counterargument before dismissing it.
+      - Never attribute an outcome to "vision" or "genius" — name the mechanism.
+      - Flag explicitly when a figure is an estimate rather than reported.
+
+  hooks:
+    - template: "{company} spent {amount} to acquire customers worth {value}. That should have killed them. It did the opposite."
+      when: the unit economics look wrong at first glance
+    - template: "In {year}, {company} made {amount}. {years} later they made {amount2}. The difference is one decision, and it wasn't the product."
+      when: there is a single pivotal decision
+    - template: "Everyone explains {company}'s collapse the same way. The numbers say something else happened first."
+      when: the consensus explanation is wrong
+
+  cta: >
+    Point at the specific adjacent case study that tests the same lesson.
+    Frame it as further evidence, not as content.
+
+  forbidden_phrases:
+    - "game changer"
+    - "disrupted the industry"
+    - "the rest is history"
+    - "changed everything"
+    - "genius move"
+    - "in today's video"
+    - "smash that like"
+
+visuals:
+  style: >
+    modern corporate documentary, clean, cool colour grade, architectural
+  mood: precise, considered, slightly cold
+  scene_seconds: 8
+  prompt_suffix: >
+    editorial photography, 16:9, cool colour grade, clean composition, natural
+    light, no text, no charts, no watermarks, no logos
+  motion: [zoom_in, pan_right, zoom_out, pan_left]
+  subjects:
+    prefer:
+      - the physical product or storefront being discussed
+      - warehouses, factories, logistics, and infrastructure
+      - empty modern offices and boardrooms
+      - the raw materials or inputs in the supply chain
+      - city skylines and financial districts at specific times of day
+    avoid:
+      - faces
+      - stock-photo handshakes and pointing-at-laptop shots
+      - fake charts or graphs, which will render as unreadable garbage
+      - legible on-screen text, brand marks, or currency symbols
+
+voice:
+  style_prompt: >
+    Read this as a business analyst walking through numbers — precise, even, slightly dry, emphasising figures rather than adjectives
+  suggested_voices:
+    gemini:
+      en: "Sadaltager"
+
+audio:
+  music_mood: minimal electronic, steady, low-key, no lyrics
+  music_volume: 0.17
+  duck_ratio: 8
+  chapter_gap_seconds: 0.7
+
+captions:
+  burn_in: false
+  font_family: Arial
+  font_size: 44
+  words_per_line: 8
+
+thumbnail:
+  style: >
+    One number set large, one product image, one accent colour. The number is
+    the hook.
+  guidelines:
+    - Lead with the most striking figure from the intro
+    - No red arrows, no shocked faces
+    - Keep it legible at 168x94 pixels
+
+metadata:
+  category_id: "27"
+  title_style: >
+    Company or product name, then the specific number or mechanism. Concrete
+    over dramatic. Under 60 characters.

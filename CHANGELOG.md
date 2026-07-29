@@ -1,5 +1,50 @@
 # Changelog
 
+## [3.3.1] - 2026-07-29
+
+Fixes a hard outage: Google retired `gemini-2.0-flash` on June 1, 2026, and every Gemini call in the repo (script generation, b-roll, thumbnails, TTS, and the web planner) had been hardcoding it or an equally-dead sibling model.
+
+### Fixed
+- Bumped every Gemini model ID to the current generation: `gemini-3.6-flash` for text (`verticals/llm.py`, `web/lib/llm.ts`), `gemini-3.1-flash-image` for b-roll and thumbnails (was `gemini-2.0-flash-exp-image-generation`, an experimental ID retired alongside 2.0 Flash), and `gemini-3.1-flash-tts-preview` for narration (was `gemini-2.5-flash-preview-tts`, itself on a separate retirement schedule). `generateContent` request/response shapes are unchanged; Google confirms the endpoint still serves Gemini 3.x models, so this was a model-ID fix, not an API migration.
+- Model IDs are now centralized: `GEMINI_TEXT_MODEL` in `verticals/llm.py` and `GEMINI_IMAGE_MODEL` in `verticals/config.py` (shared by `broll.py` and `thumbnail.py`) so the next retirement is a one-line change instead of a repo-wide grep.
+- A 404 from any Gemini call now names the dead model ID and points at `https://ai.google.dev/gemini-api/docs/models`, in both the Python CLI and the web planner, instead of surfacing Google's generic "no longer available" message with no next step.
+
+## [3.3.0] - 2026-07-29
+
+Adds `web/`, a Next.js app for the planning half of the long-form engine, deployable to Vercel.
+
+### Added
+- `web/` — landing page plus a planner that takes a topic and a format and returns the chapter outline and full narration, with a `script.md` download that feeds straight into `longform import-script`.
+- Client-driven writing loop: `/api/outline` and `/api/section` each make exactly one LLM call, and the browser walks the section list passing forward summaries of what is already written. No serverless invocation outlives a single model call, and a failure partway through keeps every section already returned.
+- `scripts/gen_web_formats.py` generates `web/lib/formats.ts` from `formats/*.yaml` so the planner and the CLI share one source of truth, with `tests/test_web_formats_sync.py` failing when the generated file goes stale.
+- Bring-your-own-key support: a visitor-supplied key takes precedence over the server's, so the deployment can be public without spending the owner's credits. Keys are read per request and never stored.
+
+### Changed
+- Two format descriptions reworded to drop em-dashes, which are a house-style violation in rendered page copy.
+
+## [3.2.0] - 2026-07-29
+
+Adds `longform`, a second engine for faceless long-form YouTube videos, alongside the existing Shorts engine.
+
+### Added
+- `longform` package — an 8 to 30 minute 16:9 pipeline: `outline`, `script`, `produce`, `metadata`, `upload`, `run`, `import-script`, `formats`, `projects`, and `status` commands under `python -m longform`.
+- Two-pass script generation: pass one plans chapters and fixes a word budget per chapter from the runtime target; pass two writes each section against that plan with a rolling summary of the sections already written. A section that comes back under 65% of its budget gets one automatic expansion pass.
+- `formats/` — six long-form format profiles (`explainer`, `documentary`, `listicle`, `story`, `case_study`, `video_essay`), each carrying a chapter arc, retention mechanics, cold-open hook patterns, forbidden phrases, visual direction, scene pacing, audio ducking, and a YouTube category. Formats compose with the existing niche profiles: the format owns structure, the niche owns flavour.
+- YouTube chapter markers measured from the rendered audio, validated against YouTube's activation rules (first marker at `0:00`, at least three chapters, each at least ten seconds) with named warnings when a chapter is too short.
+- Chunked TTS: narration synthesized per section and, within a section, in sentence-aligned chunks, then concatenated with re-encoding so a mid-run provider fallback cannot desync the captions.
+- Scene planning against measured section durations, with inter-section silence absorbed into the preceding scene so visuals stay locked to narration across a full runtime.
+- Concurrent 16:9 image generation with a prompt-hash cache under `~/.verticals/longform/cache/`, gradient fallback frames, and per-scene, per-image, per-clip resume.
+- Sidechain music ducking and `loudnorm` normalisation to −16 LUFS in the final pass, plus video padding so the render can never end before the narration.
+- Gemini TTS (Google GenAI) as a TTS provider in `verticals/tts.py`, using the existing `GEMINI_API_KEY`. It accepts a plain-language delivery instruction, converts the API's headerless PCM to MP3, and falls back to Edge TTS on failure. It is the long-form default when a Gemini key is present; the Shorts auto-detect chain is unchanged, so existing users are not silently moved onto paid narration — opt in with `--voice gemini` or `TTS_PROVIDER=gemini`.
+- Per-format voice and delivery: each format profile sets a Gemini voice and a `style_prompt`, so a documentary and a countdown are read differently, not just written differently. Format voice settings win over the niche's; the niche fills in what the format omits.
+- Faceless constraints enforced in every generated visual prompt: no faces, no identifiable people, no legible text, no generated charts.
+- `import-script` for bringing your own script, splitting on `## Heading` lines and generating per-section visual prompts.
+- `references/longform.md` guide, README section, and 120 tests covering the pure logic of both passes, chapter math, scene planning, metadata assembly, and project state.
+
+### Changed
+- `verticals.upload.upload_to_youtube` now reads `youtube_category_id` and `privacy_status` from the draft, defaulting to the previous hardcoded `20` / `private`, and drops empty tags. This lets long-form projects set the category from their format profile and the privacy from `--privacy`.
+- `pyproject.toml` packages both `verticals*` and `longform*`.
+
 ## [3.1.0] - 2026-06-10
 
 Community providers, CJK captions, and reliability fixes.

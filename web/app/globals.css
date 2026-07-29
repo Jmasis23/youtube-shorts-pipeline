@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+/*
+  One theme family, auto-following the viewer's system preference.
+  One accent (burnt orange) used on every surface that needs emphasis.
+  One radius scale: 8px everywhere, 4px for the smallest chips.
+*/
+@theme {
+  --color-ink-50: #f7f7f6;
+  --color-ink-100: #ebeae8;
+  --color-ink-200: #d6d4d0;
+  --color-ink-300: #b3afa9;
+  --color-ink-400: #85807a;
+  --color-ink-500: #625d57;
+  --color-ink-600: #4a4641;
+  --color-ink-700: #35322e;
+  --color-ink-800: #232120;
+  --color-ink-900: #171615;
+  --color-ink-950: #0e0d0d;
+
+  --color-ember-400: #e08a52;
+  --color-ember-500: #c2703d;
+  --color-ember-600: #a15829;
+
+  --radius-card: 8px;
+  --radius-chip: 4px;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+:root {
+  --surface: var(--color-ink-50);
+  --surface-raised: #ffffff;
+  --surface-sunken: var(--color-ink-100);
+  --line: var(--color-ink-200);
+  --text: var(--color-ink-900);
+  --text-muted: var(--color-ink-500);
+  --text-faint: var(--color-ink-400);
+  --accent: var(--color-ember-600);
+  --accent-contrast: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface: var(--color-ink-950);
+    --surface-raised: var(--color-ink-900);
+    --surface-sunken: #0a0a09;
+    --line: var(--color-ink-800);
+    --text: var(--color-ink-50);
+    --text-muted: var(--color-ink-300);
+    --text-faint: var(--color-ink-400);
+    --accent: var(--color-ember-400);
+    --accent-contrast: var(--color-ink-950);
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: light dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  background: var(--surface);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Motion is at dial 4: entrance transitions and hover feedback, nothing more. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .rise {
+    animation: rise 0.55s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+
+  @keyframes pulse-line {
+    0%,
+    100% {
+      opacity: 0.35;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+  .working {
+    animation: pulse-line 1.4s ease-in-out infinite;
+  }
+}
