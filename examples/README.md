@@ -1,9 +1,10 @@
 # Examples
 
-Two worked end-to-end examples, with the exact commands and the output you should expect at each stage. Both were run against this repo as-is.
+Worked end-to-end examples, with the exact commands and the output you should expect at each stage. Examples 01 and 02 were run against this repo as-is; example 03 notes which of its stages are illustrative.
 
 - [01 — Tech news Short, full pipeline](01-tech-news-short.md)
 - [02 — Zero-cost draft with topic discovery](02-free-draft-discovery.md)
+- [03 — Faceless long-form documentary, full pipeline](03-longform-documentary.md)
 
 ## Prerequisites
 

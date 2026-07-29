@@ -1,0 +1,122 @@
+name: story
+display_name: Narrative Story
+description: >
+  A single story told in acts, with a protagonist, a want, an obstacle, and a
+  cost. Retention comes from narrative tension rather than information density.
+  The longest-watching of the faceless formats when the story actually lands.
+
+target_minutes: 18
+chapters: 5
+
+script:
+  tone: intimate, propulsive, patient with detail
+  narration_style: >
+    Past tense, close third person. Scene before summary — put the viewer in a
+    specific place at a specific moment before explaining anything. Sensory
+    detail over adjectives. Let dialogue do work where the record supports it.
+  perspective: a storyteller who knows how it ends and is not telling you yet
+
+  arc:
+    intro: >
+      Open inside a scene, mid-action, with no setup. The viewer should be
+      disoriented for ten seconds and then oriented by a single clarifying
+      sentence. End the intro on the question the whole story answers.
+    early: >
+      Act one. Establish the protagonist's ordinary world and the specific
+      thing they want. Make the want concrete and small enough to picture.
+    middle: >
+      Act two. The obstacle arrives and everything that could go wrong does.
+      Raise the stakes by narrowing the options, not by adding events.
+    late: >
+      Act three. The decision and its cost. This is where the intro's opening
+      scene finally arrives in sequence and is understood.
+    outro: >
+      The aftermath, quietly. What the protagonist has that they did not
+      before, and what it cost. Then the call to action.
+
+  retention:
+    open_loop: >
+      The in-media-res cold open is the loop — the viewer watches to find out
+      how that moment happened. Do not explain it until act three.
+    rehook_every_seconds: 110
+    rules:
+      - Every act must end on a decision made or a door closed, never on a summary.
+      - Introduce no more than four named people across the entire story.
+      - Give one physical detail per scene the viewer can picture exactly.
+      - Never tell the viewer how to feel about an event.
+      - Withhold the protagonist's motivation until it is dramatised, not stated.
+
+  hooks:
+    - template: "{time_marker}, {protagonist} was {specific_action}. Eleven minutes later, nothing about {their} life worked the same way."
+      when: there is a single pivotal moment
+    - template: "The last thing {protagonist} said before {event} was so ordinary that nobody wrote it down for years."
+      when: the story turns on hindsight
+    - template: "This is a story about {want}. It goes somewhere else entirely."
+      when: the story subverts its own premise
+
+  cta: >
+    A quiet single line after the story has landed. Never interrupt the
+    aftermath with a request.
+
+  forbidden_phrases:
+    - "little did they know"
+    - "and that's when everything changed"
+    - "buckle up"
+    - "you won't believe what happened next"
+    - "in today's video"
+    - "fast forward to"
+
+visuals:
+  style: >
+    narrative cinematography, warm practical light, shallow focus, 35mm feel
+  mood: intimate, atmospheric, slightly melancholy
+  scene_seconds: 10
+  prompt_suffix: >
+    cinematic film still, 16:9, 35mm, shallow depth of field, practical
+    lighting, no text, no watermarks, no logos
+  motion: [zoom_in, pan_left, zoom_out, pan_right]
+  subjects:
+    prefer:
+      - the specific rooms, streets, and vehicles the scene takes place in
+      - objects the protagonist touched, shot in close-up
+      - weather and time of day matching the emotional beat
+      - empty spaces just after someone has left them
+    avoid:
+      - faces
+      - identifiable real people
+      - crowds where an individual could be recognised
+      - legible on-screen text
+
+voice:
+  style_prompt: >
+    Read this as an intimate storyteller — warm, close to the microphone, patient with pauses, letting scenes breathe
+  suggested_voices:
+    gemini:
+      en: "Sulafat"
+
+audio:
+  music_mood: sparse cinematic score, single sustained instrument, no percussion
+  music_volume: 0.15
+  duck_ratio: 9
+  chapter_gap_seconds: 1.4
+
+captions:
+  burn_in: false
+  font_family: Arial
+  font_size: 42
+  words_per_line: 9
+
+thumbnail:
+  style: >
+    One cinematic frame that raises a question. Text is optional and never more
+    than three words.
+  guidelines:
+    - Frame it like a film still, not a graphic
+    - Strong single light source
+    - Never spoil the act-three turn
+
+metadata:
+  category_id: "24"
+  title_style: >
+    Concrete and slightly withholding. Name the person or place, hint at the
+    turn, resolve nothing. No questions.

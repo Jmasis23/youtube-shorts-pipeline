@@ -40,6 +40,37 @@ Implemented today:
 
 Not shipped yet: Gradio UI, Docker, Colab, TikTok/Reels/X upload, Pexels, Replicate, ComfyUI, and Kokoro TTS. Those are roadmap items, not current features.
 
+## Long-Form Engine
+
+The repo ships a second engine, `longform`, for faceless **8 to 30 minute 16:9** videos — the documentary, explainer, and video-essay side of a channel rather than the Shorts side.
+
+```
+python -m longform run --topic "How container shipping actually works" --format documentary --minutes 14
+```
+
+That command plans a chapter outline, writes the narration one chapter at a time, narrates it, generates a scene every ~10 seconds, measures the audio to produce real YouTube chapter timestamps, builds the description around them, and uploads.
+
+It is a separate engine rather than a flag on `verticals` because a 15-minute video breaks in ways a 60-second one does not:
+
+- **Two-pass script.** One LLM call cannot write 2,500 coherent words — it drifts, repeats, forgets its own cold open, and hits the output-token ceiling. Pass one plans the chapters and fixes a word budget per chapter from the runtime target. Pass two writes each chapter with a rolling summary of what came before.
+- **Format profiles.** `formats/*.yaml` sits alongside `niches/*.yaml`. The niche says what the video is about; the format says how it is built — chapter arc, retention mechanics, where the open loop pays off. Six ship: `explainer`, `documentary`, `listicle`, `story`, `case_study`, `video_essay`.
+- **Real chapters.** Timestamps come from the measured duration of each rendered section, then get validated against YouTube's rules (first at `0:00`, at least three, each at least 10s) before the description is written.
+- **Scale.** ~100 scenes per video: images generated concurrently and cached by prompt hash, scene clips encoded once so the concat is a stream copy, sidechain music ducking instead of a per-speech-region volume envelope, and resume at the level of individual sections, images, and clips.
+- **Faceless as a hard constraint.** No faces, no presenters, no identifiable people, no generated text or charts — enforced in every visual prompt regardless of format.
+- **Gemini TTS narration.** Long-form defaults to Google GenAI speech (`gemini-2.5-flash-preview-tts`), using the `GEMINI_API_KEY` already needed for images. It takes a plain-language delivery instruction, so each format sets both a voice and how it is read — Charon reading a documentary "measured, letting the facts carry the weight", Laomedeia reading a countdown "brisk, lifting into each entry". Without a Gemini key it falls back to free Edge TTS.
+
+Long-form defaults to an SRT sidecar rather than burned-in captions: Shorts are watched muted in a feed, long-form is watched with sound and often on a TV, and burned captions cannot be turned off.
+
+Both engines share one credential store, one LLM router, one set of TTS providers, and one uploader. Full guide: [references/longform.md](references/longform.md).
+
+```bash
+python -m longform formats                          # list format profiles
+python -m longform outline --topic "..." --format case_study
+python -m longform script --project <id>            # review before rendering
+python -m longform produce --project <id>
+python -m longform import-script --file script.md --topic "..."   # bring your own
+```
+
 ## How It Works
 
 ```
@@ -300,12 +331,16 @@ discovery:
 
 ## Cost Per Video
 
+Shorts:
+
 | Configuration | Cost |
 |---------------|------|
 | **Premium** (Claude + Gemini + ElevenLabs) | ~$0.11 |
 | **Budget** (Gemini + Gemini + Edge TTS) | ~$0.04 |
 | **Draft-only local** (Ollama) | $0.00 |
 | **Voice-only free path** (Edge TTS) | $0.00 for voice generation |
+
+Long-form is dominated by scene images, then narration. A 14-minute documentary at 11s per scene is ~78 images and ~13,000 TTS characters. Raise `--scene-seconds`, lower `--minutes`, or lean on the prompt-hash image cache to bring that down; `--provider ollama --voice edge` with no Gemini key runs the whole pipeline at $0.00 with gradient placeholder scenes.
 
 ## Quality Limits
 
@@ -361,6 +396,27 @@ verticals/
 │   ├── state.py               # Resume capability
 │   ├── retry.py               # Exponential backoff
 │   └── log.py                 # Structured logging
+├── longform/                  # Long-form engine (8 to 30 min, 16:9)
+│   ├── __main__.py            # CLI entry point
+│   ├── config.py              # Landscape constants, pacing math, paths
+│   ├── formats.py             # Format profile loader
+│   ├── outline.py             # Pass one: chapter plan + word budgets
+│   ├── script.py              # Pass two: per-chapter narration
+│   ├── narration.py           # Chunked TTS per section + measured timings
+│   ├── chapters.py            # YouTube chapter markers + validation
+│   ├── visuals.py             # Scene planning, 16:9 images, Ken Burns
+│   ├── subtitles.py           # SRT sidecar + optional burn-in
+│   ├── assemble.py            # Concat, sidechain ducking, loudness, render
+│   ├── metadata.py            # Title, description with chapters, tags
+│   ├── project.py             # Resumable project state
+│   └── util.py                # JSON parsing, chunking, timestamps
+├── formats/                   # 6 long-form format profiles
+│   ├── explainer.yaml
+│   ├── documentary.yaml
+│   ├── listicle.yaml
+│   ├── story.yaml
+│   ├── case_study.yaml
+│   └── video_essay.yaml
 ├── niches/                    # 15 built in niche profiles
 │   ├── tech.yaml
 │   ├── gaming.yaml
@@ -383,6 +439,7 @@ verticals/
 │   └── setup_youtube_oauth.py
 ├── references/
 │   ├── setup.md
+│   ├── longform.md
 │   └── troubleshooting.md
 ├── pyproject.toml
 └── requirements.txt

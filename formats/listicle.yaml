@@ -1,0 +1,119 @@
+name: listicle
+display_name: Ranked List / Countdown
+description: >
+  A ranked countdown where each entry is a self-contained mini-story. The
+  ranking has to be defensible — an arbitrary order is what makes these feel
+  cheap. Built for high browse-traffic and strong session time.
+
+target_minutes: 12
+chapters: 10
+
+script:
+  tone: energetic but controlled, opinionated, willing to make a call
+  narration_style: >
+    Second person, present tense. Each entry gets the same shape: name it,
+    show why it earns its rank, land one surprising detail, then move. Vary
+    sentence length so the repeated structure does not become a drone.
+  perspective: someone who has actually looked at all of these and ranked them
+
+  arc:
+    intro: >
+      State the ranking criterion explicitly — that is the promise. Tease the
+      number one entry by category without naming it. Say how many entries.
+    early: >
+      The lower entries. Keep these tight; they exist to establish the format
+      and the standard being applied.
+    middle: >
+      The entries get more space as the rank climbs. Start comparing entries
+      to each other rather than treating each in isolation.
+    late: >
+      The top three. The number one entry gets roughly double the words of any
+      other, and must justify the tease from the intro.
+    outro: >
+      Name the entry that just missed the cut and say why. Then the call to
+      action.
+
+  retention:
+    open_loop: >
+      Tease number one in the intro by describing it obliquely — a category, a
+      number, a consequence — without naming it. Reference the tease once
+      around the halfway mark.
+    rehook_every_seconds: 70
+    rules:
+      - Count down, never up. The best entry is last.
+      - Every entry must state its rank number out loud so chapter markers line up.
+      - No two entries may open with the same sentence structure.
+      - Each entry needs one detail a viewer would not find in the first search result.
+      - Never pad an entry to hit a word count — cut instead.
+
+  hooks:
+    - template: "We ranked every {category} by {criterion}. The order is going to annoy some people."
+      when: the ranking is contestable
+    - template: "Number one on this list is not the one you're thinking of. It's not even in the top five most talked about."
+      when: the top entry is a genuine surprise
+    - template: "{count} {category}, ranked by {criterion}. The last one is the only one that actually {payoff}."
+      when: the top entry has a unique property
+
+  cta: >
+    Ask for the entry the viewer would have ranked first, framed as a genuine
+    disagreement rather than an engagement prompt.
+
+  forbidden_phrases:
+    - "in no particular order"
+    - "you won't believe number one"
+    - "let's jump right in"
+    - "without further ado"
+    - "coming in at number"
+    - "honorable mention"
+
+visuals:
+  style: bright, high-contrast, punchy commercial photography
+  mood: energetic, clean, saturated
+  scene_seconds: 7
+  prompt_suffix: >
+    high-key commercial photography, 16:9, saturated colour, crisp detail,
+    no text, no watermarks, no logos
+  motion: [zoom_in, pan_right, zoom_out, pan_left]
+  subjects:
+    prefer:
+      - the specific item or place being ranked, shot cleanly
+      - dramatic wide shots that establish scale
+      - detail shots that support the one surprising fact
+    avoid:
+      - faces
+      - generic filler unrelated to the entry
+      - legible on-screen text or numbers
+
+voice:
+  style_prompt: >
+    Read this as an energetic countdown host — brisk and confident, lifting into each new entry, without shouting
+  suggested_voices:
+    gemini:
+      en: "Laomedeia"
+
+audio:
+  music_mood: upbeat instrumental, steady pulse, no lyrics, no drops
+  music_volume: 0.2
+  duck_ratio: 7
+  chapter_gap_seconds: 0.5
+
+captions:
+  burn_in: true
+  font_family: Arial
+  font_size: 48
+  words_per_line: 7
+
+thumbnail:
+  style: >
+    The number front and centre, one hero image behind it, one high-saturation
+    accent colour.
+  guidelines:
+    - The count must be legible at thumbnail size
+    - Show the most visually striking entry, not the top-ranked one
+    - Two words of text maximum beyond the number
+
+metadata:
+  category_id: "24"
+  title_style: >
+    Lead with the number and the category, then the ranking criterion. Keep it
+    under 60 characters so it does not truncate on mobile.

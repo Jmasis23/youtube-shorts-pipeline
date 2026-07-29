@@ -36,16 +36,23 @@ def upload_to_youtube(
     youtube = build("youtube", "v3", credentials=creds)
     log(f"Uploading {video_path.name}...")
 
+    # Category and privacy are overridable per draft: the shorts pipeline keeps
+    # its Gaming/private defaults, while long-form projects set their own from
+    # the format profile and the --privacy flag.
+    tags = [t.strip() for t in draft.get("youtube_tags", "").split(",") if t.strip()]
     body = {
         "snippet": {
             "title": draft.get("youtube_title", draft["news"])[:100],
             "description": draft.get("youtube_description", ""),
-            "tags": draft.get("youtube_tags", "").split(","),
-            "categoryId": "20",
+            "tags": tags,
+            "categoryId": str(draft.get("youtube_category_id", "20")),
             "defaultLanguage": lang,
             "defaultAudioLanguage": lang,
         },
-        "status": {"privacyStatus": "private", "selfDeclaredMadeForKids": False},
+        "status": {
+            "privacyStatus": draft.get("privacy_status", "private"),
+            "selfDeclaredMadeForKids": False,
+        },
     }
 
     media = MediaFileUpload(str(video_path), chunksize=-1, resumable=True)

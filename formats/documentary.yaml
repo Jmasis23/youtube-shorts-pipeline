@@ -1,0 +1,126 @@
+name: documentary
+display_name: Documentary Deep Dive
+description: >
+  A long, evidence-led investigation of one subject. Chronology carries the
+  viewer; the narration stays restrained and lets the facts do the work. The
+  register is prestige documentary, not YouTube commentary.
+
+target_minutes: 16
+chapters: 6
+
+script:
+  tone: measured, restrained, quietly authoritative — never breathless
+  narration_style: >
+    Third person. Long sentences with real subordinate clauses, cut against
+    short flat ones for emphasis. Dates, places, and names stated plainly.
+    Understatement over emphasis: the material is dramatic, the narrator is not.
+  perspective: a narrator assembling evidence in front of the viewer
+
+  arc:
+    intro: >
+      Cold open on the single most arresting moment in the whole story, told
+      in present tense, out of chronological order. Cut away before resolving
+      it. Then state what this film is about.
+    early: >
+      Go back to the beginning. Establish who, where, and when, and what the
+      world looked like before any of this happened.
+    middle: >
+      The escalation. Each development makes the next one inevitable — show
+      that causal chain rather than listing events.
+    late: >
+      The turn, and the consequences that followed. Return to the cold-open
+      moment and resolve it in full context.
+    outro: >
+      What is left behind. Name what changed and what did not. End on the
+      unresolved question rather than a tidy moral.
+
+  retention:
+    open_loop: >
+      The cold open is the loop. Reference it obliquely at least twice in the
+      middle chapters before resolving it in the last body chapter.
+    rehook_every_seconds: 100
+    rules:
+      - Every claim must be attributable to something in the research block.
+      - Give at least one specific number, date, or quantity per chapter.
+      - Never say "we may never know" — say what is actually documented.
+      - Withhold one named detail from the cold open and reveal it late.
+      - No rhetorical questions to the audience. This is narration, not chat.
+
+  hooks:
+    - template: "On {date}, {subject} did something that should have been impossible. It took {duration} for anyone to notice."
+      when: there is a datable inciting incident
+    - template: "The official record of {topic} runs to a few paragraphs. What is missing from it is the entire story."
+      when: the accepted account is incomplete
+    - template: "{subject} was, by every measure available at the time, a complete success. That is what makes what happened next so difficult to explain."
+      when: the story is a reversal
+
+  cta: >
+    A single restrained line pointing to the related film the viewer should
+    watch next. No enthusiasm, no imperatives beyond one.
+
+  forbidden_phrases:
+    - "in today's video"
+    - "little did they know"
+    - "you won't believe"
+    - "the rest is history"
+    - "shrouded in mystery"
+    - "to this day, nobody knows"
+    - "let that sink in"
+
+visuals:
+  style: >
+    archival-feeling cinematography, desaturated, heavy grain, deep shadows,
+    anamorphic framing
+  mood: sombre, weighty, atmospheric
+  scene_seconds: 11
+  prompt_suffix: >
+    documentary cinematography, 16:9, film grain, desaturated colour grade,
+    natural available light, no text, no watermarks, no logos
+  motion: [zoom_in, pan_right, zoom_out, pan_left]
+  subjects:
+    prefer:
+      - period-accurate locations and interiors, empty
+      - weathered objects and documents photographed in raking light
+      - aerial and wide establishing shots of real terrain
+      - machinery, infrastructure, and vehicles of the era
+      - weather and time-of-day as mood
+    avoid:
+      - faces
+      - identifiable real people
+      - re-enactors in costume
+      - modern branding or signage
+      - legible on-screen text
+
+voice:
+  style_prompt: >
+    Read this as a restrained documentary narrator — measured, low-energy, letting the facts carry the weight, never dramatising
+  suggested_voices:
+    gemini:
+      en: "Charon"
+
+audio:
+  music_mood: cinematic ambient, low strings, sparse, tension without melody
+  music_volume: 0.14
+  duck_ratio: 10
+  chapter_gap_seconds: 1.2
+
+captions:
+  burn_in: false
+  font_family: Arial
+  font_size: 42
+  words_per_line: 9
+
+thumbnail:
+  style: >
+    A single atmospheric image with heavy negative space and two or three words
+    set small. Restraint reads as authority in this format.
+  guidelines:
+    - Desaturated, one accent colour only
+    - No faces, no arrows, no outlined text
+    - The subject should be identifiable as a silhouette
+
+metadata:
+  category_id: "27"
+  title_style: >
+    Declarative, specific, slightly formal. Name the subject and the year or
+    place. No questions, no second person, no punctuation beyond a colon.

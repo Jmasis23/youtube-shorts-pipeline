@@ -1,0 +1,122 @@
+name: explainer
+display_name: Explainer
+description: >
+  Answers one question thoroughly. The viewer arrives confused about a thing
+  and leaves able to explain it to someone else. Builds understanding in
+  layers — each chapter is only understandable because the previous one landed.
+
+target_minutes: 10
+chapters: 5
+
+script:
+  tone: clear, authoritative, unhurried, never condescending
+  narration_style: >
+    Second person. Short declarative sentences broken up by the occasional long
+    one. Concrete nouns over abstractions. Define a term the first time it is
+    used, then use it freely. Read aloud naturally — this is spoken, not written.
+  perspective: a knowledgeable friend explaining over coffee, not a lecturer
+
+  arc:
+    intro: >
+      Cold open on the question itself, phrased so the viewer feels the gap in
+      their own understanding. State plainly what they will be able to explain
+      by the end. Do not introduce yourself or the channel.
+    early: >
+      Establish the ground floor — the one mechanism everything else rests on.
+      Assume zero prior knowledge here and only here.
+    middle: >
+      Add the complication. The simple version the viewer now holds is
+      incomplete; show precisely where it breaks.
+    late: >
+      Resolve the complication into the full picture. This is the payoff the
+      cold open promised.
+    outro: >
+      Compress the whole explanation into three sentences the viewer could
+      repeat from memory. Then the call to action.
+
+  retention:
+    open_loop: >
+      Name a specific counterintuitive fact in the first 20 seconds and say it
+      will only make sense by chapter three. Pay it off there, explicitly.
+    rehook_every_seconds: 90
+    rules:
+      - Open each chapter with a question the previous chapter made the viewer ask.
+      - Never summarise what was just said — move forward instead.
+      - Use a concrete number or named example at least once per chapter.
+      - End each chapter on an unresolved beat so the next one has to start.
+
+  hooks:
+    - template: "Almost everything you've been told about {topic} is a simplification. Here's the version that actually holds up."
+      when: the popular understanding is a useful lie
+    - template: "{topic} shouldn't work. It does, and the reason is stranger than you'd guess."
+      when: the mechanism is counterintuitive
+    - template: "There's one question about {topic} nobody seems to answer directly. So let's answer it directly."
+      when: the topic is widely covered but shallowly
+
+  cta: >
+    One sentence, tied to the content — point at the specific next question the
+    video opened. No "smash that like button", no begging.
+
+  forbidden_phrases:
+    - "in today's video"
+    - "without further ado"
+    - "buckle up"
+    - "let that sink in"
+    - "hey guys"
+    - "don't forget to subscribe"
+    - "we've all been there"
+
+visuals:
+  style: clean, cinematic, photorealistic, shallow depth of field, natural light
+  mood: calm, considered, quietly premium
+  scene_seconds: 9
+  prompt_suffix: >
+    cinematic lighting, 16:9 composition, high detail, muted colour grade,
+    no text, no watermarks, no logos
+  motion: [zoom_in, pan_right, zoom_out, pan_left]
+  subjects:
+    prefer:
+      - macro detail shots of the objects being discussed
+      - empty architectural interiors with strong light
+      - hands working with tools or materials, cropped above the wrist
+      - landscapes and infrastructure at golden hour
+      - abstract textures that echo the concept
+    avoid:
+      - faces
+      - talking-head presenters
+      - stock-photo business handshakes
+      - anything with legible on-screen text
+
+voice:
+  style_prompt: >
+    Read this as a clear, unhurried explainer narrator — steady pace, warm but not chatty, landing each idea before moving to the next
+  suggested_voices:
+    gemini:
+      en: "Iapetus"
+
+audio:
+  music_mood: ambient, sparse piano and pads, no lyrics, no percussion swells
+  music_volume: 0.16
+  duck_ratio: 8
+  chapter_gap_seconds: 0.8
+
+captions:
+  burn_in: false
+  font_family: Arial
+  font_size: 44
+  words_per_line: 8
+
+thumbnail:
+  style: >
+    One clear subject, high contrast, a single short phrase of three or four
+    words. No arrows, no red circles, no shocked faces.
+  guidelines:
+    - The image must answer "what is this about" in under one second
+    - Text must be readable at 168x94 pixels
+    - Leave the bottom-right corner clear for the duration badge
+
+metadata:
+  category_id: "27"
+  title_style: >
+    Specific and concrete. Name the actual subject. Curiosity from precision,
+    not from withholding. No all-caps, no more than one piece of punctuation.
