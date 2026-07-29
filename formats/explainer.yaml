@@ -3,7 +3,7 @@ display_name: Explainer
 description: >
   Answers one question thoroughly. The viewer arrives confused about a thing
   and leaves able to explain it to someone else. Builds understanding in
-  layers — each chapter is only understandable because the previous one landed.
+  layers: each chapter is only understandable because the previous one landed.
 
 target_minutes: 10
 chapters: 5

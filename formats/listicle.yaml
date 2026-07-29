@@ -2,8 +2,8 @@ name: listicle
 display_name: Ranked List / Countdown
 description: >
   A ranked countdown where each entry is a self-contained mini-story. The
-  ranking has to be defensible — an arbitrary order is what makes these feel
-  cheap. Built for high browse-traffic and strong session time.
+  ranking has to be defensible, because an arbitrary order is what makes these
+  feel cheap. Built for high browse-traffic and strong session time.
 
 target_minutes: 12
 chapters: 10

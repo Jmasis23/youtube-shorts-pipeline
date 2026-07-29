@@ -63,6 +63,12 @@ Long-form defaults to an SRT sidecar rather than burned-in captions: Shorts are 
 
 Both engines share one credential store, one LLM router, one set of TTS providers, and one uploader. Full guide: [references/longform.md](references/longform.md).
 
+### Web planner
+
+`web/` is a Next.js app for the planning half: enter a topic, pick a format, get the chapter outline and the full narration in the browser, then download a `script.md` and render it with `longform import-script`. It deploys to Vercel with Root Directory set to `web` ([setup](web/README.md)).
+
+It writes scripts but does not render video, and cannot: rendering needs ffmpeg, Whisper, and minutes of CPU per video. The architectural consequence is worth knowing if you fork it — **the browser drives the writing loop, one HTTP request per section**, so no serverless function ever runs longer than a single LLM call, and a failure on section six keeps the five already written. Format profiles are shared with the CLI through a generated module (`python3 scripts/gen_web_formats.py`), with a test that fails if it drifts.
+
 ```bash
 python -m longform formats                          # list format profiles
 python -m longform outline --topic "..." --format case_study
@@ -410,6 +416,10 @@ verticals/
 │   ├── metadata.py            # Title, description with chapters, tags
 │   ├── project.py             # Resumable project state
 │   └── util.py                # JSON parsing, chunking, timestamps
+├── web/                       # Next.js planner + landing page (Vercel)
+│   ├── app/                   # pages and the two API routes
+│   ├── components/            # planner client, chapter strip, sections
+│   └── lib/                   # generated formats, prompts, budgets, LLM router
 ├── formats/                   # 6 long-form format profiles
 │   ├── explainer.yaml
 │   ├── documentary.yaml

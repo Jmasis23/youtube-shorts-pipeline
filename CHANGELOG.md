@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.3.0] - 2026-07-29
+
+Adds `web/`, a Next.js app for the planning half of the long-form engine, deployable to Vercel.
+
+### Added
+- `web/` — landing page plus a planner that takes a topic and a format and returns the chapter outline and full narration, with a `script.md` download that feeds straight into `longform import-script`.
+- Client-driven writing loop: `/api/outline` and `/api/section` each make exactly one LLM call, and the browser walks the section list passing forward summaries of what is already written. No serverless invocation outlives a single model call, and a failure partway through keeps every section already returned.
+- `scripts/gen_web_formats.py` generates `web/lib/formats.ts` from `formats/*.yaml` so the planner and the CLI share one source of truth, with `tests/test_web_formats_sync.py` failing when the generated file goes stale.
+- Bring-your-own-key support: a visitor-supplied key takes precedence over the server's, so the deployment can be public without spending the owner's credits. Keys are read per request and never stored.
+
+### Changed
+- Two format descriptions reworded to drop em-dashes, which are a house-style violation in rendered page copy.
+
 ## [3.2.0] - 2026-07-29
 
 Adds `longform`, a second engine for faceless long-form YouTube videos, alongside the existing Shorts engine.
